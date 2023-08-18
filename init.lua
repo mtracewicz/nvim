@@ -16,13 +16,21 @@ vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
   'tpope/vim-sleuth',
-
+  {
+    "kylechui/nvim-surround",
+    version = "*",
+    event = "VeryLazy",
+    config = function()
+      require("nvim-surround").setup({})
+    end
+  },
+  'tpope/vim-obsession',
   {
     'neovim/nvim-lspconfig',
     dependencies = {
       { 'williamboman/mason.nvim', config = true },
       'williamboman/mason-lspconfig.nvim',
-      { 'j-hui/fidget.nvim', tag = 'legacy', opts = {} },
+      { 'j-hui/fidget.nvim',       tag = 'legacy', opts = {} },
       'folke/neodev.nvim',
     },
   },
@@ -38,19 +46,23 @@ require('lazy').setup({
     },
   },
 
-  { 'folke/which-key.nvim', opts = {}, config = function() 
-    local wk = require("which-key")
-    wk.register({
-      t = {
-        name = "Telescope", -- optional group name
-      },
-      l = {name = 'LSP'},
-      w = {name = 'Workspace'},
-      p = {name = 'Parameter Swap'},
-      s = {name = 'Split'},
-      d = {name = 'Diagnostic'}
-    }, { prefix = "<leader>" })
-  end},
+  {
+    'folke/which-key.nvim',
+    opts = {},
+    config = function()
+      local wk = require("which-key")
+      wk.register({
+        t = {
+          name = "Telescope", -- optional group name
+        },
+        l = { name = 'LSP' },
+        w = { name = 'Workspace' },
+        s = { name = 'Split' },
+        g = { name = 'Git' },
+        d = { name = 'Diagnostic' }
+      }, { prefix = "<leader>" })
+    end
+  },
   {
     'lewis6991/gitsigns.nvim',
     opts = {
@@ -62,7 +74,8 @@ require('lazy').setup({
         changedelete = { text = '~' },
       },
       on_attach = function(bufnr)
-        vim.keymap.set('n', '<leader>gp', require('gitsigns').prev_hunk, { buffer = bufnr, desc = '[G]o to [P]revious Hunk' })
+        vim.keymap.set('n', '<leader>gp', require('gitsigns').prev_hunk,
+          { buffer = bufnr, desc = '[G]o to [P]revious Hunk' })
         vim.keymap.set('n', '<leader>gn', require('gitsigns').next_hunk, { buffer = bufnr, desc = '[G]o to [N]ext Hunk' })
       end,
     },
@@ -70,9 +83,16 @@ require('lazy').setup({
 
   {
     'sainnhe/gruvbox-material',
+    -- 'shaunsingh/nord.nvim',
+    -- 'neanias/everforest-nvim',
     priority = 1000,
     config = function()
       vim.cmd.colorscheme 'gruvbox-material'
+      -- vim.g.nord_contrast = true
+      -- vim.g.nord_borders = true
+      -- vim.g.nord_disable_background = true
+      -- vim.cmd.colorscheme 'nord'
+      -- vim.cmd.colorscheme 'everforest'
     end,
   },
 
@@ -96,8 +116,9 @@ require('lazy').setup({
     },
   },
 
-  { 'numToStr/Comment.nvim', opts = {}},
-  { 'nvim-telescope/telescope.nvim',
+  { 'numToStr/Comment.nvim', opts = {} },
+  {
+    'nvim-telescope/telescope.nvim',
     branch = '0.1.x',
     dependencies = { 'nvim-lua/plenary.nvim' }
   },
@@ -159,6 +180,7 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
+vim.o.mouse = 'a'
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
@@ -183,8 +205,8 @@ require('telescope').setup {
     file_browser = {
       -- theme = "ivy",
       hijack_netrw = true,
-      },
     },
+  },
 }
 pcall(require('telescope').load_extension, 'fzf')
 pcall(require("telescope").load_extension, "file_browser")
@@ -196,22 +218,23 @@ local tmap = function(keys, func, desc)
 
   vim.keymap.set('n', keys, func, { desc = desc })
 end
-tmap('<leader>t?', require('telescope.builtin').oldfiles, '[?] Find recently opened files' )
-tmap('<leader>tb', require('telescope.builtin').buffers, '[ ] Find existing buffers' )
+tmap('<leader>t?', require('telescope.builtin').oldfiles, '[?] Find recently opened files')
+tmap('<leader>tm', require('telescope.builtin').marks, 'Find [M]arks')
+tmap('<leader>tb', require('telescope.builtin').buffers, '[ ] Find existing buffers')
 tmap('<leader>/', function()
   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
     winblend = 10,
     previewer = false,
   })
-end,'[/] Fuzzily search in current buffer' )
+end, '[/] Fuzzily search in current buffer')
 
-tmap('<leader>tg', require('telescope.builtin').git_files,'Search [G]it [F]iles' )
-tmap('<leader>tf', require('telescope.builtin').find_files,'[S]earch [F]iles' )
-tmap('<leader>th', require('telescope.builtin').help_tags,'[S]earch [H]elp' )
-tmap('<leader>tw', require('telescope.builtin').grep_string,'[S]earch current [W]ord' )
-tmap('<leader>tr', require('telescope.builtin').live_grep,'[S]earch by [G]rep' )
-tmap('<leader>td', require('telescope.builtin').diagnostics,'[S]earch [D]iagnostics' )
-tmap('<leader>to', require('telescope.builtin').lsp_document_symbols,'[D]ocument [S]ymbols')
+tmap('<leader>tg', require('telescope.builtin').git_files, 'Search [G]it [F]iles')
+tmap('<leader>tf', require('telescope.builtin').find_files, '[S]earch [F]iles')
+tmap('<leader>th', require('telescope.builtin').help_tags, '[S]earch [H]elp')
+tmap('<leader>tw', require('telescope.builtin').grep_string, '[S]earch current [W]ord')
+tmap('<leader>tr', require('telescope.builtin').live_grep, '[S]earch by [G]rep')
+tmap('<leader>td', require('telescope.builtin').diagnostics, '[S]earch [D]iagnostics')
+tmap('<leader>to', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
 tmap('<leader>tt', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
 require('nvim-treesitter.configs').setup {
@@ -262,15 +285,6 @@ require('nvim-treesitter.configs').setup {
         ['[]'] = '@class.outer',
       },
     },
-    swap = {
-      enable = true,
-      swap_next = {
-        ['<leader>ps'] = '@parameter.inner',
-      },
-      swap_previous = {
-        ['<leader>pS'] = '@parameter.inner',
-      },
-    },
   },
 }
 
@@ -281,18 +295,18 @@ vim.keymap.set('n', '<leader>de', vim.diagnostic.open_float, { desc = 'Open floa
 vim.keymap.set('n', '<leader>dq', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
 -- Split
-vim.keymap.set('n', '<leader>sv', ':vs<CR>',{desc = "Split vericaly"})
-vim.keymap.set('n', '<leader>sh', ':split<CR>',{desc = "Split horizontaly"})
+vim.keymap.set('n', '<leader>sv', ':vs<CR>', { desc = "Split vericaly" })
+vim.keymap.set('n', '<leader>sh', ':split<CR>', { desc = "Split horizontaly" })
 
 -- Terminal
-vim.keymap.set('n', '<F7>', ':FloatermToggle<CR>',{ silent=true})
-vim.keymap.set('t', '<F7>', '<C-\\><C-n>:FloatermToggle<CR>',{ silent=true})
+vim.keymap.set('n', '<F7>', ':FloatermToggle<CR>', { silent = true })
+vim.keymap.set('t', '<F7>', '<C-\\><C-n>:FloatermToggle<CR>', { silent = true })
 
 -- Disable arrow keys
-vim.keymap.set({'n','v','i'}, '<Left>', '', {silent=true})
-vim.keymap.set({'n','v','i'}, '<Right>', '', {silent=true})
-vim.keymap.set({'n','v','i'}, '<Up>', '', {silent=true})
-vim.keymap.set({'n','v','i'}, '<Down>', '', {silent=true})
+vim.keymap.set({ 'n', 'v', 'i' }, '<Left>', '', { silent = true })
+vim.keymap.set({ 'n', 'v', 'i' }, '<Right>', '', { silent = true })
+vim.keymap.set({ 'n', 'v', 'i' }, '<Up>', '', { silent = true })
+vim.keymap.set({ 'n', 'v', 'i' }, '<Down>', '', { silent = true })
 
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
@@ -309,7 +323,7 @@ local on_attach = function(_, bufnr)
   nmap('<leader>la', vim.lsp.buf.code_action, 'Code [A]ction')
   nmap('<leader>lD', vim.lsp.buf.type_definition, 'Type [D]efinition')
   nmap('<space>lf', function()
-      vim.lsp.buf.format { async = true }
+    vim.lsp.buf.format { async = true }
   end, '[F]ormat')
 
   -- LSP Goto
