@@ -80,19 +80,11 @@ require('lazy').setup({
       end,
     },
   },
-
   {
     'sainnhe/gruvbox-material',
-    -- 'shaunsingh/nord.nvim',
-    -- 'neanias/everforest-nvim',
     priority = 1000,
     config = function()
       vim.cmd.colorscheme 'gruvbox-material'
-      -- vim.g.nord_contrast = true
-      -- vim.g.nord_borders = true
-      -- vim.g.nord_disable_background = true
-      -- vim.cmd.colorscheme 'nord'
-      -- vim.cmd.colorscheme 'everforest'
     end,
   },
 
@@ -203,7 +195,6 @@ require('telescope').setup {
   },
   extensions = {
     file_browser = {
-      -- theme = "ivy",
       hijack_netrw = true,
     },
   },
@@ -352,7 +343,6 @@ end
 local servers = {
   clangd = {},
   gopls = {},
-  -- pyright = {},
   rust_analyzer = {},
   tsserver = {},
 
